@@ -13,7 +13,7 @@
 --
 --
 
-local meadowphysics = include("meadowphysics/lib/mp/core")()
+local meadowphysics = include("lib/mp/core")()
 local hs = include('lib/halfsecond')
 
 g = grid.connect()
@@ -97,4 +97,8 @@ function redraw()
   screen.clear()
   meadowphysics:draw()
   screen.update()
+end
+
+function cleanup()
+  meadowphysics:all_notes_off()
 end

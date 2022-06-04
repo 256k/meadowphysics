@@ -4,14 +4,12 @@ local function Meadowphysics ()
 
   local mp = {}
 
-  local create_voice = include("meadowphysics/lib/mp/voice")
-  local setup_params = include("meadowphysics/lib/mp/parameters")
-  local ui = include("meadowphysics/lib/mp/ui")
-  local mp_grid = include("meadowphysics/lib/mp/grid")
-  local scale = include("meadowphysics/lib/mp/scale")
+  local create_voice = include("lib/mp/voice")
+  local setup_params = include("lib/mp/parameters")
+  local ui = include("lib/mp/ui")
+  local mp_grid = include("lib/mp/grid")
+  local scale = include("lib/mp/scale")
   local MusicUtil = require "musicutil"
-
-  mp.ppqn = 96
 
   -- focus
   -- focus sets what draws to screen, grid, what key presses mean, and what grid presses mean
@@ -67,7 +65,7 @@ local function Meadowphysics ()
           end
 
           if (params:get('output') == 2 or params:get('output') == 3) then
-            midi_note_on(i)
+            trigger_midi_note(i)
           end
 
           if (params:get('output') == 4) then
@@ -90,14 +88,14 @@ local function Meadowphysics ()
               gate_high(note_num, hz, i) -- global defined by main script
             end
             if (params:get('output') == 2 or params:get('output') == 3) then
-              midi_note_on(i)
+              toggle_midi_note(i)
             end
           else
             if (params:get('output') == 1 or params:get('output') == 3) then
               gate_low(note_num, hz, i) -- global defined by main script
             end
             if (params:get('output') == 2 or params:get('output') == 3) then
-              midi_note_off(i)
+              toggle_midi_note(i)
             end
           end
         end
@@ -148,9 +146,46 @@ local function Meadowphysics ()
     return channel, note
   end
 
+  active_midi_notes = {}
+
+  function trigger_midi_note(track)
+    local channel, note = get_midi_target(track)
+    length = 0.1
+    mp.midi_out_device:note_on(note, velocity, channel)
+    local note_id = channel .. "_" .. note
+
+    local off = function ()
+      mp.midi_out_device:note_off(note, velocity, channel)
+      active_midi_notes[note_id] = nil
+    end
+
+    active_midi_notes[note_id] = off
+
+    local timeout = function()
+      clock.sleep(length)
+      off()
+    end
+    if length ~= nil then
+        clock.run(timeout)
+    end
+  end
+
+  function toggle_midi_note(track)
+    local channel, note = get_midi_target(track)
+    local note_id = channel .. "_" .. note
+    if active_midi_notes[note_id] ~= nil then
+      active_midi_notes[note_id]()
+    else
+      active_midi_notes[note_id] = function ()
+        mp.midi_out_device:note_off(note, velocity, channel)
+        active_midi_notes[note_id] = nil
+      end
+      mp.midi_out_device:note_on(note, velocity, channel)
+    end
+  end
+
   function midi_note_on(track)
     local channel, note = get_midi_target(track)
-    print(track, note, channel)
     voices[track].active_midi_notes[note] = true
     mp.midi_out_device:note_on(note, 100, channel)
   end
@@ -164,21 +199,17 @@ local function Meadowphysics ()
   notes = {} -- @todo this is used by scale but it's weird like this. fix it.
 
   function mp.all_notes_off()
-    for i = 1, mp.voice_count do
-      if (params:get(i.."_type") == 1) then midi_note_off(i) end
-      for k,v in pairs(voices[i].active_midi_notes) do
-        print("note off", k,v)
-      end
+    for k,v in pairs(active_midi_notes) do
+      active_midi_notes[k]()
     end
   end
 
   mp.clock_loop = function()
+    local tick_count = 0
     while true do
       clock.sync(1/(params:get("clock_division")*4))
-      if (params:get('output') == 2 or params:get('output') == 3 and false) then
-        mp.all_notes_off()
-      end
       mp.handle_tick()
+      tick_count = tick_count + 1
       redraw()
       mp_grid:draw(mp)
     end
@@ -199,7 +230,7 @@ local function Meadowphysics ()
     end
     -- increment current tick for each voice
     for i=1,mp.voice_count do
-      voices[i].current_tick = voices[i].current_tick+1
+      voices[i].current_tick = voices[i].current_tick + 1
     end
   end
 
