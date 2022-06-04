@@ -13,7 +13,7 @@
 --
 --
 
-local meadowphysics = include("meadowphysics/lib/mp/core")()
+local meadowphysics = include("lib/mp/core")()
 local g = grid.connect()
 
 -- voicing
@@ -63,4 +63,8 @@ function redraw()
   screen.clear()
   meadowphysics:draw()
   screen.update()
+end
+
+function cleanup()
+  meadowphysics:all_notes_off()
 end
