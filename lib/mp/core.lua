@@ -184,18 +184,6 @@ local function Meadowphysics ()
     end
   end
 
-  function midi_note_on(track)
-    local channel, note = get_midi_target(track)
-    voices[track].active_midi_notes[note] = true
-    mp.midi_out_device:note_on(note, 100, channel)
-  end
-
-  function midi_note_off(track)
-    local channel, note = get_midi_target(track)
-    mp.midi_out_device:note_off(note, 100, channel)
-    voices[track].active_midi_notes[note] = nil
-  end
-
   notes = {} -- @todo this is used by scale but it's weird like this. fix it.
 
   function mp.all_notes_off()
