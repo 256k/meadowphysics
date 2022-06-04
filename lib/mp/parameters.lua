@@ -7,6 +7,7 @@ setup_params = function(mp)
     type = "option",
     id = "output",
     name = "output",
+    default = 1,
     options = {
       "audio", "midi", "audio + midi",
       "crow 1-4 trigs", "just friends notes", "just friends shapes"
