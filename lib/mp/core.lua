@@ -27,7 +27,7 @@ local function Meadowphysics ()
     selected_voice = 1
   }
   -- create an empty table of grid key states
-  for i = 1, 8 do
+  for i = 1, 16 do
     mp.state.grid_keys[i] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
   end
 
@@ -39,7 +39,7 @@ local function Meadowphysics ()
   mp.voices = voices
 
   mp.init = function ()
-    mp.voice_count = 8
+    mp.voice_count = 16
     setup_params(mp)
     scale:make_params()
 
@@ -370,11 +370,11 @@ local function Meadowphysics ()
         if (x == 7) then
           mp.voices[y].set_bang_type(2)
         end
-        if (x > 8) then
+        if (x > 16) then
           -- Get the highest and lowest division keys pressed
           local pushed_division_keys = {}
-          for di=1,8 do
-            if (mp.state.grid_keys[y][di+8]) == 1 then
+          for di=1,16 do
+            if (mp.state.grid_keys[y][di+16]) == 1 then
               table.insert(pushed_division_keys, di)
             end
           end

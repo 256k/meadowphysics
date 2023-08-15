@@ -1,4 +1,5 @@
 local MusicUtil = require "musicutil"
+my_midi = midi.connect(n)
 
 scale = {}
 
@@ -35,9 +36,18 @@ function scale:make_params()
 
 end
 
-function scale:build()
-  scale.notes = MusicUtil.generate_scale_of_length(params:get("root_note"), params:get("scale_mode"), 16)
-  local num_to_add = 8 - #notes
+my_midi.event = function(data)
+  params:set("root_note", data[2])
+  -- tab.print(data)
+  scale:build(data[2])
+end
+
+function scale:build(root_note)
+  local root = 0
+  if (root_note) then root = root_note else root = params:get("root_note") end
+    print(root)
+  scale.notes = MusicUtil.generate_scale_of_length(root, params:get("scale_mode"), 16)
+  local num_to_add = 16 - #notes
   for i = 1, num_to_add do
     table.insert(scale.notes, scale.notes[16 - num_to_add])
   end

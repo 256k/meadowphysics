@@ -18,11 +18,11 @@ local voice_count = 8
 
 local function base_lighting(mp)
   for i = 1, #mp.voices do
-    g:led(1, i,  1)
-    g:led(3, i,  1)
-    g:led(4, i,  1)
-    g:led(6, i,  1)
-    g:led(7, i,  1)
+    g:led(1, i,  15)
+    g:led(3, i,  15)
+    g:led(4, i,  15)
+    g:led(6, i,  15)
+    g:led(7, i,  15)
   end
 end
 
@@ -36,28 +36,28 @@ function grid:draw(mp)
     for i = 1, #mp.voices do
       voice = mp.voices[i]
       if (params:get(i.."_type") == 1) then
-        g:led(6, i,  4)
+        g:led(6, i,  15)
       else
-        g:led(7, i,  4)
+        g:led(7, i,  15)
       end
       if (voice.is_playing) then
-        g:led(3, i,  4)
+        g:led(3, i,  15)
       end
-      g:led(8 + params:get(i.."_clock_division_high"), i,  4)
+      g:led(8 + params:get(i.."_clock_division_high"), i,  15)
       for div_i = params:get(i.."_clock_division_low"), params:get(i.."_clock_division_high") do
-        g:led(div_i+8, i,  2)
+        g:led(div_i+8, i,  15)
       end
-      g:led(8 + voice.current_clock_division, i,  4)
+      g:led(8 + voice.current_clock_division, i,  15)
     end
     -- Light up the focused voice
-    g:led(1, mp.state.selected_voice,  4)
+    g:led(1, mp.state.selected_voice,  15)
     -- Show all the voices targeted by this voice
     for ti = 1, voice_count do
       if (params:get(mp.state.selected_voice .. "_reset_" .. ti) == 2) then
-        g:led(4, ti,  4)
+        g:led(4, ti,  15)
       end
       if params:get(ti .. "_running") == 2 then
-        g:led(3, ti,  4)
+        g:led(3, ti,  15)
       end
     end
   end
@@ -72,7 +72,7 @@ function grid:draw(mp)
       end
       -- show playhead
       if voice.isRunning() then
-  	    g:led(voice.current_step, i,  4)
+  	    g:led(voice.current_step, i,  15)
       end
 	  end
 	end
@@ -81,7 +81,7 @@ function grid:draw(mp)
     base_lighting(mp)
 
     -- Light up the focused voice
-    g:led(1, mp.state.selected_voice,  4)
+    g:led(1, mp.state.selected_voice,  15)
     local rule = params:get(mp.state.selected_voice .. "_rule")
 
     -- Draw the rule glyph
@@ -95,12 +95,12 @@ function grid:draw(mp)
     end
 
     -- Draw rule target/application indicator
-    g:led(5,params:get(mp.state.selected_voice .. "_rule_target"),3)
-    g:led(6,params:get(mp.state.selected_voice .. "_rule_target"),3)
-    g:led(7,params:get(mp.state.selected_voice .. "_rule_target"),3)
+    g:led(5,params:get(mp.state.selected_voice .. "_rule_target"),15)
+    g:led(6,params:get(mp.state.selected_voice .. "_rule_target"),15)
+    g:led(7,params:get(mp.state.selected_voice .. "_rule_target"),15)
     -- show rule target mode
     local rule_application = params:get(mp.state.selected_voice .. "_rule_application")
-    g:led(4 + rule_application,params:get(mp.state.selected_voice .. "_rule_target"), 8)
+    g:led(4 + rule_application,params:get(mp.state.selected_voice .. "_rule_target"), 15)
 
 end
   g:refresh()
